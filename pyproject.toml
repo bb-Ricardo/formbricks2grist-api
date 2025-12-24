@@ -1,0 +1,14 @@
+[project]
+name = "formbricks2grist-api"
+version = "0.0.1"
+description = "Add Formbricks survey response to Grist document"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.127.0",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.12.0",
+    "pygrister>=0.9.1",
+    "requests>=2.32.5",
+    "uvicorn>=0.40.0",
+]
