@@ -1,9 +1,10 @@
+import logging
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from app.settings import get_settings
-import logging
 from typing import List
+
+from app.settings import get_settings
 
 logger = logging.getLogger(__name__)
 

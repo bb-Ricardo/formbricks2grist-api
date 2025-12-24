@@ -1,8 +1,6 @@
 import requests
+
 from app.settings import FormbricksConfig
-from app.models import InternalWebhookContent, InternalWebhookField
-from formbricks.models import FormbricksWebhook
-from app.lib import grab, strip_tags
 
 
 class FormbricksClient:

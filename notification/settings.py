@@ -1,5 +1,7 @@
-from pydantic import BaseModel, Field, SecretStr, BeforeValidator
 from typing import Optional, Annotated, List
+
+from pydantic import BaseModel, Field, SecretStr, BeforeValidator
+
 from grist.settings import string_to_list
 
 

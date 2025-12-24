@@ -1,9 +1,9 @@
 
+import datetime
 import logging
 
 from app.models import InternalWebhookContent
 from app.settings import get_settings
-import datetime
 from notification.client import MailHandler
 
 logger = logging.getLogger(__name__)

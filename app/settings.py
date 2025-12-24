@@ -1,11 +1,13 @@
+from functools import lru_cache
+from typing import Annotated
+
 from pydantic import BaseModel, Field, AfterValidator
 from pydantic_settings import BaseSettings
-from typing import Annotated
-from functools import lru_cache
 
 from formbricks.settings import FormbricksConfig
 from grist.settings import GristConfig
 from notification.settings import MailConfig
+
 
 # ========================
 # Configuration Management

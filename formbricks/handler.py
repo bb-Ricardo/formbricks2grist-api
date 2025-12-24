@@ -1,7 +1,7 @@
 from app.lib import strip_tags, grab
 from app.models import InternalWebhookContent, InternalWebhookField
-from formbricks.models import FormbricksWebhook
 from formbricks.client import FormbricksClient
+from formbricks.models import FormbricksWebhook
 
 
 def normalize_webhook_content(content: FormbricksWebhook, client: FormbricksClient) -> InternalWebhookContent:

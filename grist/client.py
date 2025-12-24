@@ -1,6 +1,8 @@
-from pygrister.api import GristApi
-from app.settings import GristConfig
 from typing import Dict, List
+
+from pygrister.api import GristApi
+
+from app.settings import GristConfig
 
 
 class GristClient:

@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field, SecretStr, BeforeValidator
 from typing import Optional, List, Annotated
+
+from pydantic import BaseModel, Field, SecretStr, BeforeValidator
 
 
 def string_to_list(value: str) -> List[str]:

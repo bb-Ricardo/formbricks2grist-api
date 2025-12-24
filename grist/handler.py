@@ -5,6 +5,7 @@ from app.models import InternalWebhookContent, InternalWebhookField
 from typing import List
 from app.lib import grab
 import logging
+from app.lib import time_cache
 
 logger = logging.getLogger(__name__)
 
@@ -122,20 +123,21 @@ def add_webhook_row(data: InternalWebhookContent, grist: GristClient) -> Interna
     return data
 
 
+@time_cache(20)
 def grist_export(grist_client: GristClient) -> List:
 
-    settings = get_settings()
+    settings = get_settings().grist
 
     return_data = []
-    if len(settings.grist.public_list_columns) == 0:
+    if len(settings.public_list_columns) == 0:
         return return_data
 
-    status_code, table_data = grist_client.list_cols(settings.grist.table_name.replace(" ", "_"))
+    status_code, table_data = grist_client.list_cols(settings.table_name.replace(" ", "_"))
 
     if status_code >= 300:
         return return_data
 
-    status_code, records = grist_client.list_records(settings.grist.table_name.replace(" ", "_"), filter_option={})
+    status_code, records = grist_client.list_records(settings.table_name.replace(" ", "_"), filter_option={})
 
     if status_code >= 300:
         return return_data
@@ -144,7 +146,7 @@ def grist_export(grist_client: GristClient) -> List:
 
     for record in records:
         item = {}
-        for column_label in settings.grist.public_list_columns:
+        for column_label in settings.public_list_columns:
             if id_field_mapping.get(column_label) is None:
                 continue
             item[column_label] = record.get(id_field_mapping.get(column_label))
