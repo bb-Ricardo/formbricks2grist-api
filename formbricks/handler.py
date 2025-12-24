@@ -14,7 +14,7 @@ def normalize_webhook_content(content: FormbricksWebhook, client: FormbricksClie
         webhook_id=content.data.id)
 
     # look up survey
-    survey_data = self.get_survey(content.data.surveyId)
+    survey_data = client.get_survey(content.data.surveyId)
 
     if survey_data is None or survey_data.get("data") is None:
         raise RuntimeError(f"unable to get survey with ID: {content.data.surveyId}")

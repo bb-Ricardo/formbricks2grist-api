@@ -32,10 +32,6 @@ class GristConfig(BaseModel):
         default="",
         description="Grist document table name to use"
     )
-    mail_recipient_column_name: Optional[str] = Field(
-        default=None,
-        description="The Table column name which contains the recipients eMail address"
-    )
     public_list_columns: Annotated[List[str] | None, BeforeValidator(string_to_list)] = Field(
         default=[],
         description="comma separated list of colum to list public",

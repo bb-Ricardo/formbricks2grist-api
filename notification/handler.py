@@ -1,4 +1,3 @@
-
 import datetime
 import logging
 
@@ -8,48 +7,32 @@ from notification.client import MailHandler
 
 logger = logging.getLogger(__name__)
 
-regIDColumnName = "Registration ID"
-
 
 def send_email_for_record(record_data: InternalWebhookContent):
 
-    settings = get_settings()
+    settings = get_settings().mail
 
-    email_column_name = settings.grist.mail_recipient_column_name
-
-    if email_column_name is None:
-        logger.warning("Grist MAIL_RECIPIENT_COLUMN_NAME is undefined")
+    if settings.enabled is False:
+        logger.info(f"sending of confirmation mail is disabled (id {record_data.webhook_id})")
         return
+
+    email_column_name = settings.confirmation_mail_recipient_column_name
 
     mail_recipient = record_data.get_item_by_label(email_column_name)
     if mail_recipient is None:
         logger.warning(f"unable to find mail address in column '{email_column_name}'")
         return
 
-    registration_id = record_data.get_item_by_label(regIDColumnName)
-
-    subject = f"Eurohash 2027 Registration ID - {registration_id.value}"
-
-    body = list()
-    body.append("Welcome to Eurohash 2027")
-    body.append("")
-    body.append("here are your registration details")
+    registration_details = list()
     for item in record_data.data:
+        if item.label in settings.confirmation_mail_columns:
+            if item.type == "Date":
+                value = datetime.datetime.fromtimestamp(item.value).strftime("%d/%m/%Y")
+            else:
+                value = item.value
 
-        if item.label not in settings.mail.confirmation_mail_columns:
-            continue
+            registration_details.append(f"   {item.label}: {value}")
 
-        if item.type == "Date":
-            value = datetime.datetime.fromtimestamp(item.value).strftime("%d/%m/%Y")
-        else:
-            value = item.value
-        body.append(f"   {item.label}: {value}")
-    body.append("")
-    body.append("Thank you for joining Eurohash 2027")
-    body.append("")
-    body.append("OnOn")
-    body.append("Mismanagement")
+    body = settings.confirmation_mail_content.format(registration_details='\n'.join(registration_details))
 
-    mail = MailHandler()
-
-    mail.send([mail_recipient.value], subject=subject, body='\n'.join(body))
+    MailHandler().send([mail_recipient.value], subject=settings.confirmation_mail_subject, body=body)
