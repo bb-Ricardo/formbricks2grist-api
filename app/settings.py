@@ -59,8 +59,6 @@ class LoggingConfig(BaseModel):
 
 class Settings(BaseSettings):
 
-    debug: bool = Field(default=False, description="Debug mode")
-
     # Server Config
     server: ServerConfig = Field(default_factory=ServerConfig)
 

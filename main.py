@@ -40,7 +40,6 @@ async def process_requests(q: asyncio.Queue, pool: ProcessPoolExecutor):
                 )
             elif isinstance(item, QueueItemWebhookStored):
                 await loop.run_in_executor(pool, send_email_for_record, item.data)
-                print(item.data.model_dump_json(indent=2))
 
             # await loop.run_in_executor(pool, send_email_for_record, record_id)
             q.task_done()  # tell the queue that the processing on the task is completed
@@ -85,7 +84,7 @@ app = FastAPI(
     title=app_name,
     description=app_description,
     version=app_version,
-    debug=settings.debug,
+    debug=True if settings.logging.level == "DEBUG" else False,
     lifespan=lifespan
 )
 
