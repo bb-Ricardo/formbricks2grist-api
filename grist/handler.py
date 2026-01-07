@@ -1,11 +1,13 @@
+import json
+import logging
+from typing import List
+
+from app.lib import grab
+from app.lib import time_cache
+from app.models import InternalWebhookContent, InternalWebhookField
+from app.settings import get_settings
 from grist.client import GristClient
 from grist.models import GristColumn, GristTable
-from app.settings import get_settings
-from app.models import InternalWebhookContent, InternalWebhookField
-from typing import List
-from app.lib import grab
-import logging
-from app.lib import time_cache
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +45,7 @@ def add_webhook_row(data: InternalWebhookContent, grist: GristClient) -> Interna
             'type': 'Choice',
             'formula': '"No"',
             'isFormula': False,
-            'widgetOptions': {
+            'widgetOptions': json.dumps({
                 "widget": "TextBox",
                 "choices": [
                     "Yes",
@@ -52,7 +54,7 @@ def add_webhook_row(data: InternalWebhookContent, grist: GristClient) -> Interna
                 ],
                 "alignment": "left",
                 "choiceOptions": {}
-            }
+            })
         }
     )
 

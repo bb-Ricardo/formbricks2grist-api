@@ -1,8 +1,6 @@
-from typing import Optional, Annotated, List, Self
+from typing import Optional, Self
 
-from pydantic import BaseModel, Field, SecretStr, BeforeValidator, model_validator
-
-from grist.settings import string_to_list
+from pydantic import BaseModel, Field, SecretStr, model_validator
 
 
 class MailConfig(BaseModel):
@@ -35,21 +33,17 @@ class MailConfig(BaseModel):
         default=None,
         description="Mail from email address"
     )
-    confirmation_mail_recipient_column_name: Optional[str] = Field(
+    confirmation_mail_recipient_template: Optional[str] = Field(
         default=None,
-        description="The table column name which contains the recipients eMail address"
+        description="The mail TO filed, supports column name substitution"
     )
-    confirmation_mail_subject: Optional[str] = Field(
+    confirmation_mail_subject_template: Optional[str] = Field(
         default=None,
-        description="Subject to use for confirmation mail"
+        description="Subject to use for confirmation mail, supports column name substitution"
     )
-    confirmation_mail_columns: Annotated[List[str] | None, BeforeValidator(string_to_list)] = Field(
-        default=[],
-        description="Comma separated list of colum to send in confirmation mail",
-    )
-    confirmation_mail_content: Optional[str] = Field(
+    confirmation_mail_content_template: Optional[str] = Field(
         default=None,
-        description="Content of confirmation mail"
+        description="Content of confirmation mail, supports column name substitution"
     )
 
     @model_validator(mode='after')
@@ -59,13 +53,11 @@ class MailConfig(BaseModel):
             return self
 
         for setting in [
-            "confirmation_mail_content",
-            "confirmation_mail_subject",
-            "confirmation_mail_recipient_column_name",
-            "confirmation_mail_columns"
+            "confirmation_mail_recipient_template",
+            "confirmation_mail_subject_template",
+            "confirmation_mail_content_template"
         ]:
             if getattr(self, setting) is None or len(getattr(self, setting)) == 0:
                 raise ValueError(f'setting "{setting}" must be defined')
 
         return self
-

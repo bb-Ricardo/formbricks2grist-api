@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Optional, List, Union
 
 from pydantic import BaseModel
@@ -33,6 +34,12 @@ class InternalWebhookField(BaseModel):
     value: Optional[Any] = ""
     label: Optional[str] = ""
     type: Optional[str] = ""
+
+    def value_as_str(self) -> str:
+        if self.type == "Date":
+            return datetime.fromtimestamp(self.value).strftime("%Y-%m-%d")
+        else:
+            return str(self.value)
 
 
 class InternalWebhookContent(BaseModel):

@@ -1,4 +1,3 @@
-import datetime
 import logging
 
 from app.models import InternalWebhookContent
@@ -6,6 +5,14 @@ from app.settings import get_settings
 from notification.client import MailHandler
 
 logger = logging.getLogger(__name__)
+
+
+def resolve_template(data: str, record_data: InternalWebhookContent) -> str:
+
+    for item in record_data.data:
+        data = data.replace("{{"+item.label+"}}", item.value_as_str())
+
+    return data
 
 
 def send_email_for_record(record_data: InternalWebhookContent):
@@ -16,23 +23,10 @@ def send_email_for_record(record_data: InternalWebhookContent):
         logger.info(f"sending of confirmation mail is disabled (id {record_data.webhook_id})")
         return
 
-    email_column_name = settings.confirmation_mail_recipient_column_name
+    recipient = resolve_template(settings.confirmation_mail_recipient_template, record_data)
+    subject = resolve_template(settings.confirmation_mail_subject_template, record_data)
+    body = resolve_template(settings.confirmation_mail_content_template, record_data)
 
-    mail_recipient = record_data.get_item_by_label(email_column_name)
-    if mail_recipient is None:
-        logger.warning(f"unable to find mail address in column '{email_column_name}'")
-        return
+    logger.info(f"sending confirmation mail to '{recipient}'")
 
-    registration_details = list()
-    for item in record_data.data:
-        if item.label in settings.confirmation_mail_columns:
-            if item.type == "Date":
-                value = datetime.datetime.fromtimestamp(item.value).strftime("%d/%m/%Y")
-            else:
-                value = item.value
-
-            registration_details.append(f"   {item.label}: {value}")
-
-    body = settings.confirmation_mail_content.format(registration_details='\n'.join(registration_details))
-
-    MailHandler().send([mail_recipient.value], subject=settings.confirmation_mail_subject, body=body)
+    MailHandler().send([recipient], subject=subject, body=body)
