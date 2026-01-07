@@ -46,7 +46,10 @@ async def process_requests(q: asyncio.Queue, pool: ProcessPoolExecutor):
             # await loop.run_in_executor(pool, send_email_for_record, record_id)
             q.task_done()  # tell the queue that the processing on the task is completed
         except Exception as e:
-            logger.error(f"processing of {item.data.webhook_id} failed: {e}")
+            if isinstance(item.data, FormbricksWebhook):
+                logger.error(f"processing of {item.data.webhookId} failed: {e}")
+            else:
+                logger.error(f"processing of {item.data.webhook_id} failed: {e}")
             time.sleep(1)
             item.retries += 1
             if item.retries <= 3:
