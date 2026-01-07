@@ -8,10 +8,16 @@ from formbricks.settings import FormbricksConfig
 from grist.settings import GristConfig
 from notification.settings import MailConfig
 
+import os
 
 # ========================
 # Configuration Management
 # ========================
+
+# unset environment variables with config setting prefixes
+for VAR_NAME in ["MAIL", "SERVER", "LOGGING", "GRIST", "FORMBRICKS"]:
+    if os.environ.get(VAR_NAME):
+        del os.environ[VAR_NAME]
 
 
 def log_level_validator(value: str) -> str:

@@ -2,9 +2,11 @@ import asyncio
 import json
 import logging
 import time
+import os
 from concurrent.futures import ProcessPoolExecutor
 from contextlib import asynccontextmanager
 from typing import List, Annotated
+from datetime import datetime
 
 from fastapi import FastAPI, Request, HTTPException, Query
 from fastapi.responses import JSONResponse
@@ -112,7 +114,7 @@ async def root():
         "status": "ok",
         "app": app_name,
         "version": app_version,
-        "message": "Eurohash API is running"
+        "message": "API is running"
     }
 
 
@@ -147,6 +149,13 @@ async def handle_formbricks_webhook(request: Request, api_token: Annotated[str |
         payload = await request.json()
 
         webhook_data = FormbricksWebhook(**payload)
+
+        dump_file_dir = "dump"
+        dump_file_name = f'{webhook_data.event}_{datetime.now().strftime("%F_%T")}_{webhook_data.webhookId}.json'
+
+        if settings.logging.level == "DEBUG" and os.access(dump_file_dir, os.W_OK | os.X_OK):
+            with open(f'{dump_file_dir}/formbricks_webhook_{dump_file_name}', 'w') as f:
+                f.write(webhook_data.model_dump_json(indent=2))
 
         logger.info(f"Webhook event received: {webhook_data.event}")
 
