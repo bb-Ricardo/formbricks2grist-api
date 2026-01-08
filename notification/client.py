@@ -25,6 +25,11 @@ class MailHandler:
         self.default_subject = f"Eurohash registration"
         self.recipient_email = ""
 
+        # set empty username and password to None
+        for setting in ["smtp_username", "smtp_password"]:
+            if getattr(self, setting) is not None and len(getattr(self, setting)) == 0:
+                setattr(self, setting, None)
+
     def send(self, recipients: List, subject=None, body: str = None) -> bool:
 
         if len(recipients) == 0:
@@ -43,18 +48,23 @@ class MailHandler:
         message.attach(MIMEText(body, 'plain'))
 
         # Connect to the SMTP server and send the email
+        smtp = smtplib.SMTP(self.smtp_server, self.smtp_port)
+
         try:
             logger.info("sending email")
-            smtp = smtplib.SMTP(self.smtp_server, self.smtp_port)
             smtp.starttls()  # Use for TLS encryption
             # smtp = smtplib.SMTP_SSL(self.smtp_server, self.smtp_port)  # Use for SSL encryption
             if self.smtp_username is not None and self.smtp_password is not None:
+                logger.debug("authenticated login to mail server")
                 smtp.login(self.smtp_username, self.smtp_password)
+            else:
+                logger.debug("anonymous login to mail server")
             smtp.sendmail(self.sender_mail, recipients, message.as_string())
             smtp.quit()
             logger.info('email sent successfully')
             return True
 
         except Exception as e:
+            smtp.quit()
             logger.error(f'email sending failed: {str(e)}')
             return False

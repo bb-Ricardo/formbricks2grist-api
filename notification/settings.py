@@ -53,6 +53,8 @@ class MailConfig(BaseModel):
             return self
 
         for setting in [
+            "sender_name",
+            "sender_address",
             "confirmation_mail_recipient_template",
             "confirmation_mail_subject_template",
             "confirmation_mail_content_template"
