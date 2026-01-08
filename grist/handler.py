@@ -131,6 +131,8 @@ def grist_export(grist_client: GristClient) -> List:
     settings = get_settings().grist
 
     return_data = []
+    column_data = list()
+
     if len(settings.public_list_columns) == 0:
         return return_data
 
@@ -144,14 +146,22 @@ def grist_export(grist_client: GristClient) -> List:
     if status_code >= 300:
         return return_data
 
-    id_field_mapping = {grab(x, "fields.label"): x.get("id") for x in table_data}
+    # iterate over columns and keep only the ones defined in public list setting
+    for column in table_data:
+        column_label = grab(column, "fields.label")
+        if column_label not in settings.public_list_columns:
+            continue
+        column_data.append(InternalWebhookField(
+            id=column.get("id"),
+            label=column_label,
+            type=grab(column, "fields.type")
+        ))
 
     for record in records:
         item = {}
-        for column_label in settings.public_list_columns:
-            if id_field_mapping.get(column_label) is None:
-                continue
-            item[column_label] = record.get(id_field_mapping.get(column_label))
+        for column in column_data:
+            column.value = record.get(column.id)
+            item[column.label] = column.value_as_str()
         return_data.append(item)
 
     return return_data

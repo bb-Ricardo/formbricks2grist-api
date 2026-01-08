@@ -36,7 +36,7 @@ class InternalWebhookField(BaseModel):
     type: Optional[str] = ""
 
     def value_as_str(self) -> str:
-        if self.type == "Date":
+        if self.value is not None and self.type == "Date":
             return datetime.fromtimestamp(self.value).strftime("%Y-%m-%d")
         else:
             return str(self.value)
