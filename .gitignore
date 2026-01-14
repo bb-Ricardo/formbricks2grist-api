@@ -3,6 +3,7 @@
 .idea
 .DS_Store
 dump
+logs
 
 __pycache__
 **/__pycache__

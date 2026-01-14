@@ -9,3 +9,4 @@ ToDo:
 * [ ] add description to README
 * [ ] fix logging to accept config settings
   * propagate logger
+* [ ] implement backend checks for health endpoint 
