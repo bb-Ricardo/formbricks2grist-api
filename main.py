@@ -186,11 +186,21 @@ async def grist_export() -> List:
 @app.get("/health")
 async def health_check():
 
-    return {
+    health_status = {
         "status": "healthy",
-        "service": app_name,
         "version": app_version
     }
+
+    form_client_health = form_client.get_health()
+    if form_client_health.get("status") != "ok":
+        raise HTTPException(status_code=500, detail=f'Formbricks status \'{form_client_health.get("status")}\'')
+
+    try:
+        grist.list_workspaces()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f'Grist error \'{e}\'')
+
+    return health_status
 
 
 # ========================

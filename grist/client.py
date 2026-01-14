@@ -28,13 +28,16 @@ class GristClient:
 
     def set_document_id(self):
 
-        result, workspace_data = self._client.list_workspaces(self.settings.team_name)
+        _, workspace_data = self.list_workspaces()
 
         for workspace in workspace_data or list():
             for doc in workspace.get("docs", {}):
                 if doc.get("name") == self.settings.document_name:
                     self.document_id = doc.get("urlId")
                     return
+
+    def list_workspaces(self):
+        return self._client.list_workspaces(self.settings.team_name)
 
     def list_tables(self):
         return self._client.list_tables(self.document_id)
