@@ -39,7 +39,7 @@ def convert_question(survey_question: dict, answers: dict) -> List[InternalWebho
         if question_type == "date":
             question_column_type = "Date"
         elif question_type == "multipleChoiceMulti":
-            question_answer = ", ".join(question_answer)
+            question_answer = ", ".join([x for x in question_answer if len(f"{x}") > 0])
 
         return_data.append(
             InternalWebhookField(

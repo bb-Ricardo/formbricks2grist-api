@@ -50,7 +50,8 @@ def add_webhook_row(data: InternalWebhookContent, grist: GristClient) -> Interna
                 "choices": [
                     "Yes",
                     "No",
-                    "Canceled"
+                    "Canceled",
+                    "Waiting List"
                 ],
                 "alignment": "left",
                 "choiceOptions": {}

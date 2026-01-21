@@ -153,7 +153,7 @@ async def handle_formbricks_webhook(request: Request, api_token: Annotated[str |
 
         webhook_data = FormbricksWebhook(**payload)
 
-        dump_file_dir = "dump"
+        dump_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "dump")
         dump_file_name = f'{webhook_data.event}_{datetime.now().strftime("%F_%T")}_{webhook_data.webhookId}.json'
 
         if settings.logging.level == "DEBUG" and os.access(dump_file_dir, os.W_OK | os.X_OK):
