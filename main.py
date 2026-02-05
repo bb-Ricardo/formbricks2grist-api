@@ -5,11 +5,11 @@ import time
 import os
 from concurrent.futures import ProcessPoolExecutor
 from contextlib import asynccontextmanager
-from typing import List, Annotated
+from typing import Annotated, Callable, Any
 from datetime import datetime
 
 from fastapi import FastAPI, Request, HTTPException, Query
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 
 from app.models import QueueItem, QueueItemWebhookIncoming, QueueItemWebhookStored, QueueItemWebhookNormalized
 from app.settings import get_settings
@@ -105,6 +105,7 @@ except Exception as error:
     logger.error(f"failed to connect to grist: {error}")
     exit(1)
 
+
 # ========================
 # API Endpoints
 # ========================
@@ -123,7 +124,6 @@ async def root():
 
 @app.get("/config")
 async def get_config(request: Request):
-
     if "localhost" not in request.headers.get("host", ""):
         return {"status": "ok"}
 
@@ -145,7 +145,7 @@ async def handle_formbricks_webhook(request: Request, api_token: Annotated[str |
             if api_token != settings.formbricks.webhook_api_token.get_secret_value():
                 return JSONResponse(
                     status_code=401,
-                    content={"status": "error", "message":  "401 - unauthorized"}
+                    content={"status": "error", "message": "401 - unauthorized"}
                 )
 
         # get content
@@ -178,9 +178,26 @@ async def handle_formbricks_webhook(request: Request, api_token: Annotated[str |
 
 
 @app.get("/public-list")
-async def grist_export() -> List:
+async def grist_export(output: Annotated[str | None, Query()] = "json"):
+    return_data = grist_handler.grist_export(grist_client=grist)
 
-    return grist_handler.grist_export(grist_client=grist)
+    csv_line: Callable[[Any], str] = \
+        lambda input_list: str('"' + '","'.join([x.replace('"', '\\"') for x in input_list]) + '"')
+
+    if output == "csv":
+        csv_data = list()
+
+        csv_data.append(csv_line(settings.grist.public_list_columns))
+
+        for item in return_data:
+            csv_data.append(csv_line([item.get(x) for x in settings.grist.public_list_columns]))
+
+        response = PlainTextResponse('\n'.join(csv_data), media_type="text/csv")
+        response.headers["Content-Disposition"] = "attachment; filename=export.csv"
+
+        return response
+
+    return JSONResponse(return_data)
 
 
 @app.get("/health")

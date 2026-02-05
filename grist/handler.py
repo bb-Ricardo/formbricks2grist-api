@@ -163,6 +163,6 @@ def grist_export(grist_client: GristClient) -> List:
         for column in column_data:
             column.value = record.get(column.id)
             item[column.label] = column.value_as_str()
-        return_data.append(item)
+        return_data.append({x: item.get(x) for x in settings.public_list_columns})
 
     return return_data
