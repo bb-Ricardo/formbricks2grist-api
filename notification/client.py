@@ -41,6 +41,9 @@ class MailHandler:
         if body is None:
             return False
 
+        # remove comma from recipient name
+        recipients = [x.replace(",", "") for x in recipients]
+
         message = MIMEMultipart()
         message['From'] = self.sender_mail
         message['To'] = ", ".join(recipients)

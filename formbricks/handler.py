@@ -30,7 +30,7 @@ def convert_question(survey_question: dict, answers: dict) -> List[InternalWebho
                     id=f"{question_id}_{part}",
                     label=f'{question_title} - {grab(survey_question, f"{part}.placeholder.default")}',
                     type=question_column_type,
-                    value=strip_tags(question_answer[key])
+                    value=strip_tags(question_answer[key]).strip()
                 )
             )
 
@@ -46,7 +46,7 @@ def convert_question(survey_question: dict, answers: dict) -> List[InternalWebho
                 id=question_id,
                 label=question_title,
                 type=question_column_type,
-                value=strip_tags(question_answer)
+                value=strip_tags(question_answer).strip()
             )
         )
 
