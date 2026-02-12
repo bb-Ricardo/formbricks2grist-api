@@ -11,6 +11,8 @@ from grist.models import GristColumn, GristTable
 
 logger = logging.getLogger(__name__)
 
+registration_id_column_name = "Registration ID"
+
 
 def add_webhook_row(data: InternalWebhookContent, grist: GristClient) -> InternalWebhookContent:
 
@@ -31,7 +33,7 @@ def add_webhook_row(data: InternalWebhookContent, grist: GristClient) -> Interna
     table_column_registration_id = GristColumn(
         id='regID',
         fields={
-            'label': "Registration ID",
+            'label': registration_id_column_name,
             'type': 'Int',
             'isFormula': True,
             'formula': '$id'
@@ -158,6 +160,10 @@ def grist_export(grist_client: GristClient) -> List:
             type=grab(column, "fields.type")
         ))
 
+    ignored_not_empty_keys = [
+        registration_id_column_name
+    ]
+
     for record in records:
         item = {}
         for column in column_data:
@@ -165,7 +171,7 @@ def grist_export(grist_client: GristClient) -> List:
             item[column.label] = column.value_as_str()
 
         # skip empty entries
-        if len("".join(item.values())) == 0:
+        if len("".join([item.get(x) for x in item.keys() if x not in ignored_not_empty_keys])) == 0:
             continue
 
         return_data.append({x: item.get(x) for x in settings.public_list_columns})
